@@ -1,0 +1,69 @@
+---
+title: "Lab-3"
+author: "Christina Lin"
+date: "9/10/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Step 1: Read the data
+
+```{r}
+
+#to test if a package exists and prevent code from failing, you can use the require function
+
+if (!require(data.table)) {
+  install.packages("data.table") }
+
+library(data.table)
+
+#only download the file if it doesn't exist already (be aware of where the R markdown file and data file are located)
+if (!file.exists("met_all.gz")){
+download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz", "met_all.gz", method="libcurl", timeout = 60)}
+
+met <- data.table::fread("met_all.gz")
+```
+
+## Step 2: Checking Dimensions
+
+```{r}
+dim(met)
+head(met)
+tail(met)
+```
+## Step 3: Looking at the variables
+
+```{r}
+str(met)
+```
+
+## Step 4: Looking at key variables
+
+```{r}
+table(met$year)
+
+table(met$day)
+
+table(met$hour)
+
+summary(met$temp)
+
+summary(met$elev)
+
+summary(met$wind.sp)
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
