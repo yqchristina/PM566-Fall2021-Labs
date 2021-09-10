@@ -45,17 +45,31 @@ str(met)
 ```{r}
 table(met$year)
 
+table(met$month)
+
 table(met$day)
 
 table(met$hour)
 
+```
+
+Looking at continuous variables 
+
+```{r}
 summary(met$temp)
 
 summary(met$elev)
 
 summary(met$wind.sp)
 ```
+Updating NAs in elevation
 
+```{r}
+met$elev[met$elev == 9999.0] <- NA
+#met[elev == 9999.0,elev := NA] this is filtering using data table
+
+summary(met$elev)
+```
 
 
 ## Including Plots
