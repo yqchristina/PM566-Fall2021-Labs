@@ -214,5 +214,127 @@ summary(met$elev)
     ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
     ##     -13     101     252     413     400    4113     710
 
-\#The \` allows you to embed r code within text The highest elevation is
-4113 meters. The lowest elevation is -13 meters.
+The highest elevation is 4113 meters. The lowest elevation is -13
+meters.
+
+Fixing the temperatures
+
+``` r
+met <- met[temp>-40][order(temp)]
+head(met)
+```
+
+    ##    USAFID WBAN year month day hour min    lat    lon elev wind.dir wind.dir.qc
+    ## 1: 722817 3068 2019     8   1    0  56 38.767 -104.3 1838      190           5
+    ## 2: 722817 3068 2019     8   1    1  56 38.767 -104.3 1838      180           5
+    ## 3: 722817 3068 2019     8   3   11  56 38.767 -104.3 1838       NA           9
+    ## 4: 722817 3068 2019     8   3   12  56 38.767 -104.3 1838       NA           9
+    ## 5: 722817 3068 2019     8   6   21  56 38.767 -104.3 1838      280           5
+    ## 6: 722817 3068 2019     8   6   22  56 38.767 -104.3 1838      240           5
+    ##    wind.type.code wind.sp wind.sp.qc ceiling.ht ceiling.ht.qc ceiling.ht.method
+    ## 1:              N     7.2          5         NA             9                 9
+    ## 2:              N     7.7          5         NA             9                 9
+    ## 3:              C     0.0          5         NA             9                 9
+    ## 4:              C     0.0          5         NA             9                 9
+    ## 5:              N     2.6          5         NA             9                 9
+    ## 6:              N     7.7          5         NA             9                 9
+    ##    sky.cond vis.dist vis.dist.qc vis.var vis.var.qc  temp temp.qc dew.point
+    ## 1:        N       NA           9       N          5 -17.2       5        NA
+    ## 2:        N       NA           9       N          5 -17.2       5        NA
+    ## 3:        N       NA           9       N          5 -17.2       5        NA
+    ## 4:        N       NA           9       N          5 -17.2       5        NA
+    ## 5:        N       NA           9       N          5 -17.2       5        NA
+    ## 6:        N       NA           9       N          5 -17.2       5        NA
+    ##    dew.point.qc atm.press atm.press.qc rh
+    ## 1:            9        NA            9 NA
+    ## 2:            9        NA            9 NA
+    ## 3:            9        NA            9 NA
+    ## 4:            9        NA            9 NA
+    ## 5:            9        NA            9 NA
+    ## 6:            9        NA            9 NA
+
+## Step 5: Checking against external data source.
+
+``` r
+met <- met[temp>-15][order(temp)]
+summary(met[, .(lat, lon, wind.sp, temp, elev)])
+```
+
+    ##       lat             lon             wind.sp           temp      
+    ##  Min.   :24.55   Min.   :-124.29   Min.   : 0.00   Min.   :-3.00  
+    ##  1st Qu.:33.98   1st Qu.: -98.02   1st Qu.: 0.00   1st Qu.:19.60  
+    ##  Median :38.37   Median : -91.74   Median : 2.10   Median :23.50  
+    ##  Mean   :37.97   Mean   : -92.14   Mean   : 2.46   Mean   :23.59  
+    ##  3rd Qu.:41.96   3rd Qu.: -82.99   3rd Qu.: 3.60   3rd Qu.:27.80  
+    ##  Max.   :48.94   Max.   : -68.31   Max.   :36.00   Max.   :56.00  
+    ##                                    NA's   :31743                  
+    ##       elev       
+    ##  Min.   : -13.0  
+    ##  1st Qu.: 101.0  
+    ##  Median : 252.0  
+    ##  Mean   : 414.3  
+    ##  3rd Qu.: 400.0  
+    ##  Max.   :4113.0  
+    ##  NA's   :182
+
+## Step 6: Summarizing everything
+
+``` r
+met[elev==max(elev,na.rm=TRUE)][,summary(elev)]
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##    4113    4113    4113    4113    4113    4113
+
+``` r
+met[elev==max(elev,na.rm=TRUE)][,summary(wind.sp)]
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+    ##   0.000   4.100   6.700   7.245   9.800  21.100     168
+
+``` r
+met[elev==max(elev,na.rm=TRUE)][,summary(temp)]
+```
+
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##    1.00    6.00    8.00    8.13   10.00   15.00
+
+Computing correlations
+
+``` r
+met[elev == max(elev, na.rm = TRUE), .(
+  temp_wind = cor(temp, wind.sp, use = "complete"),
+  temp_hour = cor(temp, hour, use = "complete"),
+  temp_day = cor(temp, day, use = "complete"),
+  wind_day = cor(wind.sp, day, use = "complete"),
+  wind_hour = cor(wind.sp, hour, use = "complete")
+)]
+```
+
+    ##      temp_wind temp_hour     temp_day  wind_day  wind_hour
+    ## 1: -0.09373843 0.4397261 -0.003857766 0.3643079 0.08807315
+
+``` r
+#This creates a new data table and not modifying the dataset itself
+```
+
+## Step 7: Exploratory graphs
+
+``` r
+hist(met$elev, breaks=100)
+```
+
+![](Lab3_ChristinaLin_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+hist(met$temp)
+```
+
+![](Lab3_ChristinaLin_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+``` r
+hist(met$wind.sp)
+```
+
+![](Lab3_ChristinaLin_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
