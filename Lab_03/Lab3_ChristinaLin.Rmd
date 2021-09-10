@@ -2,7 +2,7 @@
 title: "Lab-3"
 author: "Christina Lin"
 date: "9/10/2021"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -120,3 +120,38 @@ hist(met$temp)
 hist(met$wind.sp)
 ```
 
+Look at where the weather station with highest elevation is located.
+
+```{r}
+elev <- met[elev==max(elev,na.rm=TRUE)]
+
+library(leaflet)
+
+leaflet(elev) %>%
+  addProviderTiles('OpenStreetMap') %>% 
+  addCircles(lat=~lat,lng=~lon, opacity=1, fillOpacity=1, radius=100)
+```
+
+
+Look at the time series of temperature and wind speed at this location
+
+```{r}
+library(lubridate)
+
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+
+elev <- elev[order(date)]
+head(elev)
+```
+
+With the date-time variable we can plot the time series of temperature and wind speed.
+
+```{r}
+plot(elev$date, elev$temp, type='l')
+
+plot(elev$date, elev$wind.sp, type='l')
+```
+
+
+There appears to be a daily cyclic pattern in the temperature and windspeed changes at this location. 
