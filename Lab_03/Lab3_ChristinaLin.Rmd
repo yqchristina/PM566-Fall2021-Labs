@@ -73,3 +73,50 @@ summary(met$elev)
 The highest elevation is `r max(met$elev, na.rm = TRUE)` meters. The lowest elevation is `r min(met$elev, na.rm = TRUE)` meters. 
 
 
+Fixing the temperatures
+
+```{r}
+met <- met[temp>-40][order(temp)]
+head(met)
+```
+
+## Step 5: Checking against external data source.
+
+```{r}
+met <- met[temp>-15][order(temp)]
+summary(met[, .(lat, lon, wind.sp, temp, elev)])
+```
+
+## Step 6: Summarizing everything 
+
+```{r}
+met[elev==max(elev,na.rm=TRUE)][,summary(elev)]
+
+met[elev==max(elev,na.rm=TRUE)][,summary(wind.sp)]
+
+met[elev==max(elev,na.rm=TRUE)][,summary(temp)]
+```
+Computing correlations
+
+```{r}
+met[elev == max(elev, na.rm = TRUE), .(
+  temp_wind = cor(temp, wind.sp, use = "complete"),
+  temp_hour = cor(temp, hour, use = "complete"),
+  temp_day = cor(temp, day, use = "complete"),
+  wind_day = cor(wind.sp, day, use = "complete"),
+  wind_hour = cor(wind.sp, hour, use = "complete")
+)]
+
+#This creates a new data table and not modifying the dataset itself
+
+```
+## Step 7: Exploratory graphs
+
+```{r}
+hist(met$elev, breaks=100)
+
+hist(met$temp)
+
+hist(met$wind.sp)
+```
+
