@@ -8,6 +8,7 @@ always_allow_html: true
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN="http://cran.rstudio.com"))
 ```
 
 # Step 1: Read the data 
@@ -100,6 +101,105 @@ Create a categorical variable for elevation as in the lecture slides
 
 ```{r}
 met_avg[, elev_cat := fifelse(elev >252, "high", "low")]
+```
+
+Deleting the first column
+
+```{r}
+met_avg <- met_avg[, -1]
+#met_avg <- met_avg[, -c(1,5,10)] deletes the 1st, 5th, and 10th column
+```
+
+
+# Step 3: Use geom_violin to examine the wind speed and dew point temperature by region
+
+```{r}
+ggplot(data = met_avg, mapping = aes(x=1, y=wind.sp)) +
+  geom_violin() +
+  facet_grid (~region)
+
+
+ggplot(data = met_avg, mapping = aes(x=1, y=dew.point)) +
+  geom_violin() +
+  facet_grid (~region)
+```
+
+Observations: Wind speeds are overall higher in the northwest and southwest regions, i.e. there are more records of higher wind speeds in these two regions. However, there is an anomaly in the northeast region where there was a record of extremely high wind speed. There is higher variability in dew point in northwest and southwest regions as well. Highest dewpoint is found in the southeast region. 
+
+
+# Step 4: Use geom_jitter with stat_smooth to examine the association between dew point temperature and wind speed by region
+
+```{r}
+ggplot(data = met_avg, mapping = aes(x = wind.sp, y = dew.point, color = region)) +
+  geom_jitter() +
+  stat_smooth()
+```
+Observations: There appears to be a negative association between dew point and wind speed in the northeast region, but not apparent association between the two in the southeast and southwest region. The relationship between dew point and wind speed is unclear in the northwest region. 
+
+
+
+# Step 5: Use geom_bar to create barplots of the weather stations by elevation category coloured by region
+
+```{r}
+ggplot(data = met_avg) +
+  geom_bar(mapping = aes(x= elev_cat, color = region, fill = region), position = "dodge") +
+  scale_fill_brewer() +
+  ggtitle("Weather Stations by Elevation and Location") +
+  xlab("Elevation") +
+  ylab("Number of Weather Stations")
+
+```
+Observations: In the southeast region, there are more weather stations at low elevation than high elevation. In the southwest and northwest regions, there are more weather stations at high elevation than low elevation. The number of weather stations at high and low elevations is similar in the northeast region.
+
+
+# Step 6: Use stat_summary to examine mean dew point and wind speed by region with standard deviation error bars
+```{r} 
+ggplot(
+  met_avg[!is.na(wind.sp)],
+  mapping = aes(x = region, y = wind.sp)) +
+  stat_summary(fun.data = "mean_sdl") +
+  stat_summary(fun.data = "mean_sdl", geom = "errorbar")
+```
+
+Observations: The average windspeed is similar between northeast and southeast, as well as between northwest and southwest. Western regions appear to have higher windspeed compared to eastern regions. Variation in wind speed are similar between all 4 regions. 
+
+
+```{r} 
+ggplot(
+  met_avg[!is.na(dew.point)],
+  mapping = aes(x = region, y = dew.point)) +
+  stat_summary(fun.data = "mean_sdl") +
+  stat_summary(fun.data = "mean_sdl", geom = "errorbar")
+```
+Observations: The average dew point is lower in western regions than eastern regions, but western regions also have higher variation in dew point measurements.
+
+
+
+# Step 7: Make a map showing the spatial trend in relative h in the US
+```{r}
+library(leaflet)
+
+temp.pal <- colorNumeric(c('darkgreen', 'goldenrod', 'brown'), domain = met_avg$rh)
+
+leaflet(met_avg) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(
+     lat = ~lat, lng=~lon,
+     label = ~paste0(round(rh,2), ' rh'), color =~ temp.pal(rh),
+     opacity = 1, fillOpacity = 1, radius = 500
+     ) %>%
+  addMarkers(
+    lat = ~ met_avg[rank(-rh) <= 10, lat], lng =~met_avg[rank(-rh) <= 10, lon]
+  ) %>%
+# And a pretty legend
+  addLegend('bottomleft', pal=temp.pal, values=met_avg$rh,
+          title='Temperature, C', opacity=1)
+```
+
+Observations: The overall trend appears to be higher relative h on the east side of the US and lower relative h on the west side. However, the top 10 highest relative h places are located around the west coast, in the north center, and very south of the country. 
+
+# Step 8: Use a ggplot extension
+```{r}
 
 ```
 
