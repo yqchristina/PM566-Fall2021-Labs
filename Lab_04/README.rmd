@@ -1,0 +1,58 @@
+---
+title: "Lab 4"
+author: "Christina Lin"
+date: "9/17/2021"
+output: github_document
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Step 1: Read the data 
+```{r}
+if (!file.exists("met_all.gz"))
+  download.file(
+    url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
+    destfile = "met_all.gz",
+    method   = "libcurl",
+    timeout  = 60
+    )
+met <- data.table::fread("met_all.gz")
+
+```
+
+# Step 2: Prepare the Data
+
+Removing temperatures less than -17 
+```{r}
+met <- met[temp >= -17]
+```
+
+Make sure there are no missing data in the key variables
+```{r}
+met[,range(temp)]
+met[,range(rh, na.rm = TRUE)]
+met[,range(wind.sp, na.rm = TRUE)]
+met[,range(vis.dist, na.rm = TRUE)]
+met[,range(dew.point, na.rm = TRUE)]
+met[,range(lat, na.rm = TRUE)]
+met[,range(lon, na.rm = TRUE)]
+met[,range(elev, na.rm = TRUE)]
+
+#Changing 9999 in elev to NA
+met[elev == 9999.0, elev := NA]
+```
+
+Generate a date variable using the functions as.Date() 
+```{r}
+met[, ymd := as.Date(paste(year, month, day, sep = "-"))]
+```
+
+
+Using the data.table::week function, keep the observations of the first week of the month.
+```{r}
+
+```
+
