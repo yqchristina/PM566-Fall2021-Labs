@@ -12,6 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Step 1: Read the data 
 ```{r}
+library(data.table)
+library(tidyverse)
+
 if (!file.exists("met_all.gz"))
   download.file(
     url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
@@ -53,6 +56,50 @@ met[, ymd := as.Date(paste(year, month, day, sep = "-"))]
 
 Using the data.table::week function, keep the observations of the first week of the month.
 ```{r}
+met[, table(week(ymd))]
+
+met <- met[week(ymd) == 31]
+```
+
+Compute the mean by station of the variables temp, rh, wind.sp, vis.dist, dew.point, lat, lon, and elev.
+
+```{r}
+met_avg <- met[, .(
+  temp = mean (temp, na.rm = TRUE),
+  rh = mean (rh, na.rm = TRUE),
+  wind.sp = mean (wind.sp, na.rm = TRUE),
+  vis.dist = mean (vis.dist, na.rm = TRUE),
+  dew.point = mean (dew.point, na.rm = TRUE),
+  lat = mean (lat, na.rm = TRUE),
+  lon = mean (lon, na.rm = TRUE),
+  elev = mean (elev, na.rm = TRUE), USAFID
+), by = "USAFID"]
+```
+
+
+Create a region variable for NW, SW, NE, SE based on lon = -98.00 and lat = 39.71 degrees
+
+```{r}
+met_avg[lat >= 39.71 & lon <= -98.00, region := "Northwest"]
+met_avg[lat < 39.71 & lon <= -98.00, region := "Southwest"]
+met_avg[lat >= 39.71 & lon > -98.00, region := "Northeast"]
+met_avg[lat < 39.71 & lon > -98.00, region := "Southeast"]
+
+#alternative
+#fifelse(lat >=39.71 & lon <=-98, "Northwest",
+#        fifelse(lat < 39.71 & lon <=-98, "Southwest",
+#                fifelse(lat >= 39.71 & lon > -98, "Northeast",
+#                       fifelse(lat < 39.71 & lon >-98, "Southeast", NA_character_))))
+
+met_avg[, table(region, useNA="always")]
+
+```
+
+
+Create a categorical variable for elevation as in the lecture slides
+
+```{r}
+met_avg[, elev_cat := fifelse(elev >252, "high", "low")]
 
 ```
 
