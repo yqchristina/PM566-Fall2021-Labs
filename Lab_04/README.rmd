@@ -124,6 +124,7 @@ ggplot(data = met_avg, mapping = aes(x=1, y=dew.point)) +
   facet_grid (~region)
 ```
 
+
 Observations: Wind speeds are overall higher in the northwest and southwest regions, i.e. there are more records of higher wind speeds in these two regions. However, there is an anomaly in the northeast region where there was a record of extremely high wind speed. There is higher variability in dew point in northwest and southwest regions as well. Highest dewpoint is found in the southeast region. 
 
 
@@ -134,6 +135,8 @@ ggplot(data = met_avg, mapping = aes(x = wind.sp, y = dew.point, color = region)
   geom_jitter() +
   stat_smooth()
 ```
+
+
 Observations: There appears to be a negative association between dew point and wind speed in the northeast region, but not apparent association between the two in the southeast and southwest region. The relationship between dew point and wind speed is unclear in the northwest region. 
 
 
@@ -149,6 +152,8 @@ ggplot(data = met_avg) +
   ylab("Number of Weather Stations")
 
 ```
+
+
 Observations: In the southeast region, there are more weather stations at low elevation than high elevation. In the southwest and northwest regions, there are more weather stations at high elevation than low elevation. The number of weather stations at high and low elevations is similar in the northeast region.
 
 
@@ -161,6 +166,8 @@ ggplot(
   stat_summary(fun.data = "mean_sdl", geom = "errorbar")
 ```
 
+
+
 Observations: The average windspeed is similar between northeast and southeast, as well as between northwest and southwest. Western regions appear to have higher windspeed compared to eastern regions. Variation in wind speed are similar between all 4 regions. 
 
 
@@ -171,6 +178,7 @@ ggplot(
   stat_summary(fun.data = "mean_sdl") +
   stat_summary(fun.data = "mean_sdl", geom = "errorbar")
 ```
+
 Observations: The average dew point is lower in western regions than eastern regions, but western regions also have higher variation in dew point measurements.
 
 
@@ -200,6 +208,13 @@ Observations: The overall trend appears to be higher relative h on the east side
 
 # Step 8: Use a ggplot extension
 ```{r}
+library(ggstatsplot)
+
+ggpiestats(met_avg, x=region, y= elev_cat,
+           title = "Percentage of Weather Stations in Each Region, by Elevation",
+           )
 
 ```
 
+
+Observations: Higher percentage of weather stations are located in the northeast region at higher elevations while more weather stations are located in southeast region at low elevations. The northwest has the least number of weather stations at both high and low elevations. 
