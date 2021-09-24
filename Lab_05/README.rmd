@@ -1,0 +1,85 @@
+---
+title: "Lab 5"
+author: "Christina Lin"
+date: "9/24/2021"
+output: github_document
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Step 1: Read the Data
+
+```{r}
+library(data.table)
+library(tidyverse)
+
+# Download the data
+stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
+stations[, USAF := as.integer(USAF)]
+
+# Dealing with NAs and 999999
+stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
+stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
+stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
+
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, list(USAF, CTRY, STATE)])
+
+# Dropping NAs
+stations <- stations[!is.na(USAF)]
+
+# Removing duplicates
+stations[, n := 1:.N, by = .(USAF)]
+stations <- stations[n == 1,][, n := NULL]
+
+```
+
+
+```{r}
+if (!file.exists("met_all.gz")){
+download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz", "met_all.gz", method="libcurl", timeout = 60)}
+
+met <- data.table::fread("met_all.gz")
+
+```
+
+
+Merging the data
+
+```{r}
+met <- merge(
+  x = met,
+  y = stations,
+  all.x = TRUE, all.y = FALSE,
+  by.x = "USAFID", by.y = "USAF"
+)
+```
+
+
+# Question 1: Representative station for the US
+
+Collapse the data set so there is one representative measurement per station using averages
+
+```{r}
+station_averages <- met[,.(
+  temp = mean(temp, na.rm=TRUE),
+  wind.sp = mean(wind.sp, na.rm = TRUE),
+  atm.press = mean(atm.press, na.rm = TRUE)
+), by = USAFID]
+```
+
+
+Now we ned to identify the median per variable
+
+```{r}
+station_averages[,.(
+  temp_50 = quantile(temp, probs = .5, na.rm = TRUE),
+  wind.sp_50 = quantile(wind.sp, probs = .5, na.rm = TRUE),
+  atm.press_50 = quantile(atm.press, probs = .5, na.rm=TRUE)
+)]
+
+```
+
