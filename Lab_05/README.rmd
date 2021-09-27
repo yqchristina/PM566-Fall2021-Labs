@@ -68,6 +68,7 @@ station_averages <- met[,.(
   temp = mean(temp, na.rm=TRUE),
   wind.sp = mean(wind.sp, na.rm = TRUE),
   atm.press = mean(atm.press, na.rm = TRUE),
+  STATE = STATE,
   lat = lat,
   lon = lon
 ), by = USAFID]
@@ -82,7 +83,8 @@ medians <- station_averages[,.(
   wind.sp_50 = quantile(wind.sp, probs = .5, na.rm = TRUE),
   atm.press_50 = quantile(atm.press, probs = .5, na.rm=TRUE),
   lat = lat,
-  lon = lon
+  lon = lon,
+  STATE = STATE
 )]
 
 medians
@@ -128,10 +130,10 @@ The representative/median stations for temperature, wind speed, and atmospheric 
 
 # Question 2: 
 
-First, need to recover the state variable by merging
+#First, need to recover the state variable by merging
 
 ```{r}
-station_averages <- merge(x = station_averages, y = stations, by.x = "USAFID", by.y = "USAF", all.x = TRUE, all.y = FALSE)
+#station_averages <- merge(x = station_averages, y = stations, by.x = "USAFID", by.y = "USAF", all.x = #TRUE, all.y = FALSE)
 
 ```
 
@@ -160,9 +162,54 @@ This table shows the representative station of each state, calculated by using t
 
 # Question 3
 
-Finding the station at the middle of the state can be done by finding the station with median latitude and longitude in each state. 
+Finding the station at the middle of the state can be done by finding the station closest to the median latitude and longitude in each state. 
 
 ```{r}
+station_averages[, lat_50 := quantile(lat, probs = .5, na.rm = TRUE), by = STATE]
+station_averages[, lon_50 := quantile(lon, probs = .5, na.rm = TRUE), by = STATE]
+
+station_averages[, eudist_location := sqrt(
+  (lat - lat_50)^2 + (lon - lon_50)^2)]
+
+
+state_middle_station <- station_averages[, .SD[which.min(eudist_location)], by = STATE]
+state_middle_station[, .(STATE, USAFID, lat, lon)]
+```
+
+
+Mapping stations from questions 1 - 3 on the same map. 
+
+First, preparing data from question 1 for merging. Data points from each question will be labelled under variable "Q" to indicate which question it came from. 
+
+```{r}
+median_stations <- rbindlist(list(median_temp_station, median_wind_station, median_atm_station), fill=TRUE)
+
+median_stations[, Q := 1]
+
+state_median_station[, Q := 2]
+
+state_middle_station[, Q:= 3]
+
+all_stations <- rbindlist(list(median_stations, state_median_station, state_middle_station), fill=TRUE)
+
+```
+
+
+
+```{r}
+library(leaflet)
+
+temp.pal <- colorFactor(palette=c("green","red","blue"), domain=all_stations$Q)
+
+leaflet(all_stations) %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(
+     lat = ~lat, lng=~lon,
+     label = ~USAFID, color = ~temp.pal(Q),
+     opacity = 1, fillOpacity = 1, radius = 500
+     ) %>%
+  addLegend('bottomleft', pal= temp.pal, values=all_stations$Q,
+          title='Representative Stations from Questions', opacity=1)
 
 ```
 
