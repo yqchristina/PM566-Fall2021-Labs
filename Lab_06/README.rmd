@@ -155,7 +155,7 @@ Since we are looking at single words again, it is good idea to treat these as si
 ```{r}
 bigrams %>%
   filter(word2 == "left") %>%
-  filter(!(word1 %in% stop_words$word)& (!grepl(pattern="^[0-9]+$", word1))) %>%
+  filter(!(word1 %in% stop_words$word) & (!grepl(pattern="^[0-9]+$", word1))) %>%
   count(word1, sort= TRUE) %>%
   top_n(20) %>%
   knitr::kable(caption = "Words BEFORE 'left'")
@@ -167,9 +167,12 @@ bigrams %>%
 
 ```{r}
 mtsamples %>%
+  group_by(medical_specialty) %>%
   unnest_tokens(output = token,input = transcription) %>%
-  group_by(mtsamples$medical_specialty) %>%
-  count(token) %>%
-  top_n(5)
+  filter(!(token %in% stop_words$word) & (!grepl(pattern="^[0-9]+$", token))) %>%
+  count(token, sort = TRUE) %>%
+  top_n(5) %>%
+  arrange(medical_specialty, n) %>%
+  knitr::kable()
 ```
 
