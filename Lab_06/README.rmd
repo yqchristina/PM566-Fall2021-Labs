@@ -10,7 +10,7 @@ always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 
@@ -126,29 +126,50 @@ Using trigrams, it appears that there are a lot of phrases that associate with s
 
 # Question 5: Words that appear before and after "left"
 
-Words appearing after "left":
-```{r}
-mtsamples %>%
+```{r, cache = TRUE}
+bigrams <- mtsamples %>%
   unnest_ngrams(ngram,transcription,n=2) %>%
-  separate(ngram, into = c("word1","word2", sep = " ")) %>%
+  separate(ngram, into = c("word1","word2", sep = " "))
+
+#Words appearing after "left"
+bigrams %>%
   select(word1, word2) %>%
   filter(word1 == "left") %>%
   count(word2, sort = TRUE)%>%
-  top_n(20)
-```
+  top_n(20) %>%
+  knitr::kable(caption = "Words AFTER 'left'")
 
-
-
-Words appearing before "left":
-```{r}
-mtsamples %>%
-  unnest_ngrams(ngram,transcription,n=2) %>%
-  separate(ngram, into = c("word1","word2", sep = " ")) %>%
+#Words appearing before "left"
+bigrams %>%
   select(word1, word2) %>%
   filter(word2 == "left") %>%
   count(word1, sort = TRUE) %>%
-  top_n(20)
+  top_n(20) %>%
+  knitr::kable()
+
+```
+
+Since we are looking at single words again, it is good idea to treat these as single tokens. Therefore, remove stop words and numbers from word1. Words appearing after 'left' do not seem to have this problem. 
+
+
+```{r}
+bigrams %>%
+  filter(word2 == "left") %>%
+  filter(!(word1 %in% stop_words$word)& (!grepl(pattern="^[0-9]+$", word1))) %>%
+  count(word1, sort= TRUE) %>%
+  top_n(20) %>%
+  knitr::kable(caption = "Words BEFORE 'left'")
 ```
 
 
+
 # Question 6: Which words used the most in each specialty?
+
+```{r}
+mtsamples %>%
+  unnest_tokens(output = token,input = transcription) %>%
+  group_by(mtsamples$medical_specialty) %>%
+  count(token) %>%
+  top_n(5)
+```
+
