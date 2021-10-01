@@ -56,4 +56,34 @@ ggplot(mtsamples,aes(x = medical_specialty)) +
   coord_flip()
 ```
 
-The specialties are not evenly distributed. 
+The specialties are not evenly distributed.
+
+
+
+# Question 2: Most frequent words in transcription column
+
+```{r, cache = TRUE}
+mtsamples %>%
+  unnest_tokens(output = token,input = transcription) %>%
+  count(token) %>%
+  top_n(20,n) %>%
+  ggplot(aes(n, fct_reorder(token,n))) + 
+  geom_col()
+```
+
+The word "patient" seems to be important, but we observe a lot of stop words. 
+
+
+# Question 3: Removing the stop words
+
+```{r}
+mtsamples %>%
+  unnest_tokens(output = token,input = transcription) %>%
+  anti_join(stop_words, by = c("token" = "word")) %>%
+  count(token) %>%
+  top_n(20,n) %>%
+  ggplot(aes(n, fct_reorder(token,n))) + 
+  geom_col()
+```
+
+
