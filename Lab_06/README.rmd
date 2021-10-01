@@ -74,16 +74,81 @@ mtsamples %>%
 The word "patient" seems to be important, but we observe a lot of stop words. 
 
 
-# Question 3: Removing the stop words
+# Question 3: Removing the stop words and numbers
 
 ```{r}
 mtsamples %>%
   unnest_tokens(output = token,input = transcription) %>%
+  count(token, sort=TRUE) %>%
   anti_join(stop_words, by = c("token" = "word")) %>%
-  count(token) %>%
+  filter(!grepl(pattern="^[0-9]+$", x= token)) %>%
   top_n(20,n) %>%
   ggplot(aes(n, fct_reorder(token,n))) + 
+  geom_col()
+
+#using anti_join() after the count is computationally faster
+#the filter function is filtering expressions that start and end with a number using regular expression
+```
+
+
+"Patient" is the most common word, followed by "left" and "history". This could suggest that there is something wrong with the patient's left side of the body. Numbers were part of the highest frequency words, so they were removed. 
+
+
+
+# Question 4: Tokenizing with ngrams
+
+First, tokenizing by bi-grams.
+```{r}
+mtsamples %>%
+  unnest_ngrams(output = bigram,input = transcription, n = 2) %>%
+  count(bigram, sort = TRUE) %>%
+  top_n(20)%>%
+  ggplot(aes(n, fct_reorder(bigram,n))) + 
+  geom_col()
+```
+
+Using bigrams is not very informative. Thus, trying trigrams:
+
+
+```{r}
+mtsamples %>%
+  unnest_ngrams(output = trigram,input = transcription, n = 3) %>%
+  count(trigram, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(n, fct_reorder(trigram,n))) + 
   geom_col()
 ```
 
 
+Using trigrams, it appears that there are a lot of phrases that associate with surgery and operations. 
+
+
+
+# Question 5: Words that appear before and after "left"
+
+Words appearing after "left":
+```{r}
+mtsamples %>%
+  unnest_ngrams(ngram,transcription,n=2) %>%
+  separate(ngram, into = c("word1","word2", sep = " ")) %>%
+  select(word1, word2) %>%
+  filter(word1 == "left") %>%
+  count(word2, sort = TRUE)%>%
+  top_n(20)
+```
+
+
+
+Words appearing before "left":
+```{r}
+mtsamples %>%
+  unnest_ngrams(ngram,transcription,n=2) %>%
+  separate(ngram, into = c("word1","word2", sep = " ")) %>%
+  select(word1, word2) %>%
+  filter(word2 == "left") %>%
+  count(word1, sort = TRUE) %>%
+  top_n(20)
+```
+
+
+# Question 6: Which words used the most in each specialty?
