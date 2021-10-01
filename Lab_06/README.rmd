@@ -1,0 +1,59 @@
+---
+title: "Lab_6"
+author: "Christina Lin"
+date: "10/1/2021"
+output: 
+  github_document:
+  html_document:
+    html_preview:false
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+if (!file.exists("mtsamples.csv"))
+  download.file(
+    url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/00_mtsamples/mtsamples.csv",
+    destfile = "mtsamples.csv",
+    method   = "libcurl",
+    timeout  = 60
+    )
+mtsamples <- read.csv("mtsamples.csv")
+
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(tidytext)
+```
+
+
+
+```{r}
+mtsamples <- as_tibble(mtsamples)
+```
+
+# Question 1: What specialties do we have?
+```{r}
+specialties <- mtsamples %>%
+  count(medical_specialty)
+
+specialties %>%
+  arrange(desc(n)) %>%
+  top_n(15) %>%
+  knitr::kable()
+
+```
+
+There are `r nrow(specialties)` specialties. Looking at the distribution:
+
+```{r}
+ggplot(mtsamples,aes(x = medical_specialty)) +
+  geom_histogram(stat = "count") +
+  coord_flip()
+```
+
+The specialties are not evenly distributed. 
