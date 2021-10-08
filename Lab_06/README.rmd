@@ -172,7 +172,7 @@ mtsamples %>%
   filter(!(token %in% stop_words$word) & (!grepl(pattern="^[0-9]+$", token))) %>%
   count(token, sort = TRUE) %>%
   top_n(5) %>%
-  arrange(medical_specialty, n) %>%
+  arrange(medical_specialty, desc(n)) %>%
   knitr::kable()
 ```
 

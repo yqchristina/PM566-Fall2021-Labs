@@ -1,0 +1,38 @@
+---
+title: "Lab 7"
+author: "Christina Lin"
+date: "10/8/2021"
+output:
+  github_document: default
+  html_document:
+    html_preview: false
+  word_document: default
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+options(repos = c(CRAN = "http://cran.rstudio.com"))
+library(tidyverse)
+library(tidytext)
+library(xml2)
+```
+
+## Question 1: How many sars-cov-2 papers?
+
+```{r}
+# Downloading the website
+website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2")
+
+# Finding the counts
+counts <- xml2::xml_find_first(website, xpath = "/html/body/main/div[9]/div[2]/div[2]/div[1]/span")
+
+# Turning it into text
+counts <- as.character(counts)
+
+
+# Extracting the data using regex
+stringr::str_extract(counts, "[0-9,]+")
+#alternative: stringr::str_extract(counts, "[[:digit:],]+")
+```
+
