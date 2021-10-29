@@ -1,0 +1,71 @@
+---
+title: "Lab 9"
+author: "Christina Lin"
+date: "10/29/2021"
+output: 
+  github_document: default
+  html_document:
+    html_preview: false
+  word_document: default
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+
+
+## Problem 2
+
+```{r}
+fun1 <- function(n = 100, k = 4, lambda = 4) {
+  x <- NULL
+  for (i in 1:n)
+    x <- rbind(x, rpois(k, lambda))
+  x #return(x)
+}
+#rpois is a vectorized function
+#this first function is filling in functions row by row 
+
+#parallel computing not needed here 
+fun1alt <- function(n = 100, k = 4, lambda = 4) {
+  matrix(rpois(n*k,lambda), nrow=n, ncol=k)
+}
+#this second function is filling things out by column because using the default byrow=FALSE
+#R sorts data column-wise 
+#R sees matrix as a vector, so single number indices can be used to extract elements 
+
+# Benchmarking
+microbenchmark::microbenchmark(
+  fun1(n=1000),
+  fun1alt(n=1000), unit="relative"
+)
+```
+
+
+
+```{r}
+# Data Generating Process (10 x 10,000 matrix)
+set.seed(1234)
+x <- matrix(rnorm(1e4), nrow=10)
+
+# Find each column's max value
+fun2 <- function(x) {
+  apply(x, 2, max)
+}
+#apply function in R is not a vector function (it's a for-loop underneath)
+
+fun2alt <- function(x) {
+  # YOUR CODE HERE
+}
+
+# Benchmarking
+microbenchmark::microbenchmark(
+  fun2(),
+  fun2alt()
+)
+```
+
