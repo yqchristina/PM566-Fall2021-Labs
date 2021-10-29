@@ -59,13 +59,18 @@ fun2 <- function(x) {
 #apply function in R is not a vector function (it's a for-loop underneath)
 
 fun2alt <- function(x) {
-  # YOUR CODE HERE
+  idx <- max.col(t(x)) 
+  x[cbind(idx, 1:ncol(x))]
 }
+#transposes matrix x, and use max.col to get the indices (gives the row number of the max value for each column), which is stored in idx
+#cbind is useful when want to access a lot of elements
+
+all(fun2(x)==fun2alt(x))
 
 # Benchmarking
 microbenchmark::microbenchmark(
-  fun2(),
-  fun2alt()
+  fun2(x),
+  fun2alt(x), unit = "relative"
 )
 ```
 
