@@ -14,8 +14,10 @@ always_allow_html: true
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Problem 1
-
+## Problem 1: Examples for Use of Parallel Computing 
+1) Weather forecasting
+2) Analysis of single-cell RNAseq data
+3) Analysis of epidemiology data for a certain disease
 
 
 ## Problem 2

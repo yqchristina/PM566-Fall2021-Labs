@@ -1,9 +1,13 @@
-Lab 9
+Lab 8
 ================
 Christina Lin
 10/29/2021
 
-## Problem 1
+## Problem 1: Examples for Use of Parallel Computing
+
+1.  Weather forecasting
+2.  Analysis of single-cell RNAseq data
+3.  Analysis of epidemiology data for a certain disease
 
 ## Problem 2
 
@@ -36,9 +40,9 @@ microbenchmark::microbenchmark(
     ## less accurate nanosecond times to avoid potential integer overflows
 
     ## Unit: relative
-    ##               expr      min       lq     mean   median       uq       max neval
-    ##     fun1(n = 1000) 23.38663 25.85506 18.12881 25.89749 26.36157 0.9470758   100
-    ##  fun1alt(n = 1000)  1.00000  1.00000  1.00000  1.00000  1.00000 1.0000000   100
+    ##               expr      min       lq     mean   median       uq    max neval
+    ##     fun1(n = 1000) 23.62325 25.30931 27.61338 25.48355 26.18202 11.437   100
+    ##  fun1alt(n = 1000)  1.00000  1.00000  1.00000  1.00000  1.00000  1.000   100
 
 ``` r
 # Data Generating Process (10 x 10,000 matrix)
@@ -72,9 +76,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##        expr      min       lq     mean   median      uq     max neval
-    ##     fun2(x) 7.480504 7.491259 6.646622 7.175434 7.02436 1.20289   100
-    ##  fun2alt(x) 1.000000 1.000000 1.000000 1.000000 1.00000 1.00000   100
+    ##        expr     min       lq     mean   median       uq      max neval
+    ##     fun2(x) 7.48467 7.414318 6.714142 7.270242 7.093628 1.349958   100
+    ##  fun2alt(x) 1.00000 1.000000 1.000000 1.000000 1.000000 1.000000   100
 
 ## Problem 3
 
@@ -156,11 +160,11 @@ system.time(my_boot(dat = data.frame(x, y), my_stat, R = 4000, ncpus = 1L))
 ```
 
     ##    user  system elapsed 
-    ##   0.034   0.006   1.301
+    ##   0.035   0.006   1.332
 
 ``` r
 system.time(my_boot(dat = data.frame(x, y), my_stat, R = 4000, ncpus = 2L))
 ```
 
     ##    user  system elapsed 
-    ##   0.050   0.009   0.777
+    ##   0.049   0.010   0.782

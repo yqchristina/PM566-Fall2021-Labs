@@ -172,8 +172,13 @@ pre code {
 </div>
 
 
-<div id="problem-1" class="section level2">
-<h2>Problem 1</h2>
+<div id="problem-1-examples-for-use-of-parallel-computing" class="section level2">
+<h2>Problem 1: Examples for Use of Parallel Computing</h2>
+<ol style="list-style-type: decimal">
+<li>Weather forecasting</li>
+<li>Analysis of single-cell RNAseq data</li>
+<li>Analysis of epidemiology data for a certain disease</li>
+</ol>
 </div>
 <div id="problem-2" class="section level2">
 <h2>Problem 2</h2>
@@ -203,7 +208,7 @@ microbenchmark::microbenchmark(
 ## less accurate nanosecond times to avoid potential integer overflows</code></pre>
 <pre><code>## Unit: relative
 ##               expr      min       lq     mean   median       uq      max neval
-##     fun1(n = 1000) 23.46077 25.89741 21.50761 25.44787 26.48089 2.836194   100
+##     fun1(n = 1000) 23.09433 25.73027 23.33061 25.66204 26.38505 3.937571   100
 ##  fun1alt(n = 1000)  1.00000  1.00000  1.00000  1.00000  1.00000 1.000000   100</code></pre>
 <pre class="r"><code># Data Generating Process (10 x 10,000 matrix)
 set.seed(1234)
@@ -230,9 +235,9 @@ microbenchmark::microbenchmark(
   fun2alt(x), unit = &quot;relative&quot;
 )</code></pre>
 <pre><code>## Unit: relative
-##        expr      min       lq     mean   median       uq      max neval
-##     fun2(x) 7.557211 7.358362 5.914912 7.083489 7.242129 1.395842   100
-##  fun2alt(x) 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000   100</code></pre>
+##        expr      min      lq     mean   median       uq      max neval
+##     fun2(x) 7.692961 7.27176 6.002665 7.269892 7.215056 1.932523   100
+##  fun2alt(x) 1.000000 1.00000 1.000000 1.000000 1.000000 1.000000   100</code></pre>
 </div>
 <div id="problem-3" class="section level2">
 <h2>Problem 3</h2>
@@ -297,10 +302,10 @@ ans0</code></pre>
 ## x            4.8650100 5.04883353</code></pre>
 <pre class="r"><code>system.time(my_boot(dat = data.frame(x, y), my_stat, R = 4000, ncpus = 1L))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.035   0.006   1.305</code></pre>
+##   0.036   0.006   1.302</code></pre>
 <pre class="r"><code>system.time(my_boot(dat = data.frame(x, y), my_stat, R = 4000, ncpus = 2L))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.050   0.009   0.772</code></pre>
+##   0.048   0.009   0.776</code></pre>
 </div>
 
 
