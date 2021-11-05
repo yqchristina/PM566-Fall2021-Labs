@@ -2,7 +2,12 @@
 title: "Lab 9"
 author: "Christina Lin"
 date: "11/5/2021"
-output: html_document
+output: 
+  html_document:
+    html_preview: false
+  github_document: default
+  word_document: default
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -32,17 +37,6 @@ dbWriteTable(con, "payment", payment)
 
 # Are there tables there?
 dbListTables(con)
-```
-
-You can also use knitr + SQL!
-
-```{sqlite, connection = con, output.var="x1"}
-
-PRAGMA table_info(actor)
-```
-
-```{r}
-x1
 ```
 
 This is equivalent to using 'dbGetQuery'.
@@ -99,6 +93,7 @@ WHERE amount IN (1.99, 7.99, 9.99)
 # Fetching the results 10 at a time 
 dbFetch(q, n=10)
 dbFetch(q, n=10)
+dbClearResult(q) #this removes the results from memory
 ```
 
 
@@ -108,6 +103,7 @@ dbGetQuery(con, "
 SELECT *
 FROM payment
 WHERE amount > 5
+LIMIT 5
 ")
 ```
 Part 4.3
@@ -116,6 +112,7 @@ dbGetQuery(con, "
 SELECT *
 FROM payment
 WHERE amount > 5 AND amount < 8
+LIMIT 5
 ")
 ```
 
@@ -128,6 +125,99 @@ FROM payment
   INNER JOIN customer
 WHERE customer.last_name = 'DAVIS'
 AND payment.customer_id = customer.customer_id
+")
+```
+
+# Question 6:
+
+Part 6.1
+```{r}
+dbGetQuery(con, "
+SELECT COUNT (*) AS nrows
+FROM rental
+")
+```
+
+
+Part 6.2
+```{r}
+dbGetQuery(con, "
+SELECT customer_id, COUNT (*) AS count
+FROM rental
+GROUP BY customer_id
+LIMIT 5
+")
+```
+
+Part 6.3
+
+```{r}
+dbGetQuery(con, "
+SELECT customer_id, COUNT (*) AS 'N Rentals'
+FROM rental
+GROUP BY customer_id
+ORDER BY `N Rentals` DESC
+LIMIT 5
+")
+
+```
+Part 6.4
+
+```{r}
+dbGetQuery(con, "
+SELECT customer_id, COUNT (*) AS count
+FROM rental
+GROUP BY customer_id
+HAVING count >= 40
+ORDER BY count DESC
+")
+
+
+```
+
+## Question 7
+
+```{r}
+dbGetQuery(con, "
+SELECT 
+  AVG(amount) AS average,
+  MAX(amount) AS maximum,
+  MIN(amount) AS minimum,
+  SUM(amount) AS sum
+FROM payment
+")
+
+```
+
+Part 7.1
+
+```{r}
+dbGetQuery(con, "
+SELECT customer_id,
+  AVG(amount) AS average,
+  MAX(amount) AS maximum,
+  MIN(amount) AS minimum,
+  SUM(amount) AS sum
+FROM payment
+GROUP BY customer_id
+LIMIT 5
+")
+
+```
+
+Part 7.2
+
+```{r}
+dbGetQuery(con, "
+SELECT customer_id,
+  COUNT(*) AS N,
+  AVG(amount) AS average,
+  MAX(amount) AS maximum,
+  MIN(amount) AS minimum,
+  SUM(amount) AS sum
+FROM payment
+GROUP BY customer_id
+HAVING COUNT(*) > 5
 ")
 ```
 
