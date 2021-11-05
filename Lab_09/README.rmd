@@ -1,0 +1,138 @@
+---
+title: "Lab 9"
+author: "Christina Lin"
+date: "11/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(RSQLite)
+library(DBI)
+
+```
+
+
+```{r}
+
+# Initialize a temporary in memory database
+con <- dbConnect(SQLite(), ":memory:")
+
+# Download tables
+actor <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/actor.csv")
+rental <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/rental.csv")
+customer <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/customer.csv")
+payment <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/payment_p2007_01.csv")
+
+# Copy data.frames to database
+dbWriteTable(con, "actor", actor)
+dbWriteTable(con, "rental", rental)
+dbWriteTable(con, "customer", customer)
+dbWriteTable(con, "payment", payment)
+
+# Are there tables there?
+dbListTables(con)
+```
+
+You can also use knitr + SQL!
+
+```{sqlite, connection = con, output.var="x1"}
+
+PRAGMA table_info(actor)
+```
+
+```{r}
+x1
+```
+
+This is equivalent to using 'dbGetQuery'.
+
+```{r}
+dbGetQuery(con, "PRAGMA table_info(actor)")
+```
+
+
+## Question 1:
+
+```{r}
+dbGetQuery(con, "
+SELECT actor_id, first_name, last_name
+FROM actor /* adding comments inline */
+ORDER by last_name, first_name
+LIMIT 5
+")
+
+# the LIMIT is same as head() in R to only display first 5 
+```
+
+
+## Question 2:
+
+```{r}
+dbGetQuery(con, "
+SELECT actor_id, first_name, last_name
+FROM actor
+WHERE last_name IN ('WILLIAMS', 'DAVIS')
+")
+
+```
+## Question 3:
+
+```{r}
+dbGetQuery(con, "
+SELECT DISTINCT customer_id
+FROM rental
+WHERE date(rental_date) = '2005-07-05'
+")
+
+```
+## Question 4:
+
+Part 4.1
+```{r}
+q <- dbSendQuery(con, "
+SELECT *
+FROM payment
+WHERE amount IN (1.99, 7.99, 9.99)
+")
+
+# Fetching the results 10 at a time 
+dbFetch(q, n=10)
+dbFetch(q, n=10)
+```
+
+
+Part 4.2
+```{r}
+dbGetQuery(con, "
+SELECT *
+FROM payment
+WHERE amount > 5
+")
+```
+Part 4.3
+```{r}
+dbGetQuery(con, "
+SELECT *
+FROM payment
+WHERE amount > 5 AND amount < 8
+")
+```
+
+## Question 5:
+
+```{r}
+dbGetQuery(con, "
+SELECT payment_id, amount
+FROM payment
+  INNER JOIN customer
+WHERE customer.last_name = 'DAVIS'
+AND payment.customer_id = customer.customer_id
+")
+```
+
+
+```{r}
+dbDisconnect(con)
+```
+
