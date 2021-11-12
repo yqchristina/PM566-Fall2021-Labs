@@ -11,6 +11,9 @@ always_allow_html: true
 
 **And remember to set `eval=TRUE`**
 
+See my lab optput [here](https://ghcdn.rawgit.org/yqchristina/PM566-Fall2021-Labs/main/Lab_11/README.html)
+
+
 ```{r setup, message=FALSE, echo=FALSE, warning=FALSE}
 library(data.table)
 library(tidyverse)
